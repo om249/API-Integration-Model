@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # AI Resume Job Classifier — Task 2
 
 A small AI prototype for **Task 2: Model or API Integration**.
@@ -250,3 +251,6 @@ The sample dataset contains synthetic/non-identifying resume descriptions. When 
 - Model comparison
 - Authentication and database
 - Recruiter dashboard
+=======
+# API-Integration-Model
+>>>>>>> 3d7b40a7e7c2df449200ff0bd823357777feb854
