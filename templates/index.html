@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Resume Job Classifier</title>
+<style>
+:root { --bg:#f5f3ff; --card:#fff; --ink:#18181b; --muted:#71717a; --accent:#6d28d9; --accent2:#a78bfa; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:Inter,Segoe UI,Arial,sans-serif; background:linear-gradient(135deg,#f5f3ff,#fafafa); color:var(--ink); }
+.container { max-width:1050px; margin:0 auto; padding:42px 20px; }
+.hero { margin-bottom:24px; }
+.badge { display:inline-block; padding:7px 12px; border-radius:999px; background:#ede9fe; color:#5b21b6; font-weight:700; font-size:13px; }
+h1 { font-size:40px; margin:15px 0 8px; }
+.subtitle { color:var(--muted); max-width:760px; line-height:1.6; }
+.grid { display:grid; grid-template-columns:1.2fr .8fr; gap:20px; }
+.card { background:var(--card); border:1px solid #e4e4e7; border-radius:18px; padding:22px; box-shadow:0 12px 35px rgba(24,24,27,.06); }
+textarea { width:100%; min-height:250px; resize:vertical; border:1px solid #d4d4d8; border-radius:12px; padding:15px; font-size:15px; line-height:1.5; outline:none; }
+textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px #ede9fe; }
+button { border:0; border-radius:10px; padding:11px 16px; cursor:pointer; font-weight:700; background:var(--accent); color:white; margin-top:12px; }
+.example { width:100%; text-align:left; background:#fafafa; color:var(--ink); border:1px solid #e4e4e7; margin-top:8px; }
+.result { margin-top:18px; padding:18px; border-radius:14px; background:#fafafa; display:none; }
+.role { font-size:26px; font-weight:800; color:#5b21b6; }
+.bar { height:9px; background:#e4e4e7; border-radius:99px; overflow:hidden; margin:7px 0 14px; }
+.fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); }
+.rank-row { margin:12px 0; }
+.small { color:var(--muted); font-size:13px; }
+@media(max-width:800px){ .grid{grid-template-columns:1fr} h1{font-size:32px} }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="hero">
+    <span class="badge">TASK 2 • AI MODEL INTEGRATION</span>
+    <h1>AI Resume Job Classifier</h1>
+    <p class="subtitle">A small prototype using a trained TF-IDF + Logistic Regression text-classification model to predict a suitable job role from resume text.</p>
+  </div>
+  <div class="grid">
+    <section class="card">
+      <h2>Resume Input</h2>
+      <p class="small">Paste resume skills, education, projects or experience. Avoid personal information.</p>
+      <textarea id="resume" placeholder="Example: Python, SQL, Pandas, Power BI, Excel..."></textarea>
+      <button onclick="predict()">Predict Job Role</button>
+      <div id="result" class="result"></div>
+    </section>
+    <aside class="card">
+      <h2>Try an Example</h2>
+      {% for role, text in examples.items() %}
+      <button class="example" onclick='useExample({{ text|tojson }})'>{{ role }}</button>
+      {% endfor %}
+      <hr style="border:0;border-top:1px solid #e4e4e7;margin:22px 0">
+      <p class="small"><b>Model:</b> TF-IDF + Logistic Regression</p>
+      <p class="small"><b>Classes:</b> 5 job roles</p>
+      <p class="small"><b>Endpoint:</b> POST /predict</p>
+    </aside>
+  </div>
+</div>
+<script>
+function useExample(text){ document.getElementById('resume').value=text; }
+async function predict(){
+  const text=document.getElementById('resume').value.trim();
+  const box=document.getElementById('result');
+  if(!text){ box.style.display='block'; box.innerHTML='<b>Please enter resume text.</b>'; return; }
+  box.style.display='block'; box.innerHTML='Analyzing...';
+  const res=await fetch('/predict',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({resume:text})});
+  const data=await res.json();
+  if(!res.ok){ box.innerHTML='<b>'+data.error+'</b>'; return; }
+  let html=`<div class="small">Predicted Job Role</div><div class="role">${data.predicted_role}</div>
+            <p><b>Top confidence: ${data.confidence}%</b></p><div class="bar"><div class="fill" style="width:${data.confidence}%"></div></div>
+            <h3>Model ranking</h3>`;
+  data.ranking.forEach(x=>html+=`<div class="rank-row"><b>${x.role}</b><div class="bar"><div class="fill" style="width:${x.confidence}%"></div></div><span class="small">${x.confidence}%</span></div>`);
+  box.innerHTML=html;
+}
+</script>
+</body>
+</html>
