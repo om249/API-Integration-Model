@@ -65,13 +65,18 @@ EXAMPLES = {
 # HOME PAGE
 # --------------------------------------------------
 
+# @app.route("/")
+# def index():
+
+#     return render_template(
+#         "index.html",
+#         examples=EXAMPLES
+#     )
+
+
 @app.route("/")
 def index():
-
-    return render_template(
-        "index.html",
-        examples=EXAMPLES
-    )
+    return render_template("index.html", examples=EXAMPLES)
 
 
 # --------------------------------------------------
@@ -151,6 +156,8 @@ def health():
     })
 
 
+
+
 # --------------------------------------------------
 # RUN APPLICATION
 # --------------------------------------------------
@@ -158,5 +165,6 @@ def health():
 if __name__ == "__main__":
 
     app.run(
-        debug=True
+        # debug=True
+         debug=False
     )
